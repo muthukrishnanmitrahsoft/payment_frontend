@@ -47,3 +47,12 @@
 .meal-inner .ant-list-item-meta-avatar {
   width: 41%;
 }
+
+
+.ant-input-number-input  {
+  text-align: center !important;
+}
+
+.ant-input-number-input-wrap{
+  width: 100% !important;
+}

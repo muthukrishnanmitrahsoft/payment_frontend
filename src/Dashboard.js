@@ -1,11 +1,7 @@
 import { useEffect, useState, useRef } from 'react'; // Add useRef
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast'; // For toast notifications
-import { Pie } from 'react-chartjs-2'; // Import Pie chart from react-chartjs-2
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-
-// Register chart.js components
-ChartJS.register(ArcElement, Tooltip, Legend);
+import { Chart } from "react-google-charts";
 
 const Dashboard = () => {
     const [analytics, setAnalytics] = useState(null);
@@ -40,55 +36,34 @@ const Dashboard = () => {
             toast.error('Payment failed. Please try again.');
             hasShownToast.current = true; // Mark toast as shown
         }
+        searchParams.delete('status');
+        const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
+        window.history.replaceState(null, '', newUrl);
     }, []);
 
-    // Chart data and options
-    const chartData = {
-        labels: ['Total Payments', 'Successful Payments', 'Failed Payments', 'Pending Payments'],
-        datasets: [
-            {
-                label: 'Payments Statistics',
-                data: analytics
-                    ? [
-                        analytics.total_payments,
-                        analytics.total_success,
-                        analytics.total_failure,
-                        analytics.total_pending
-                    ]
-                    : [0, 0, 0, 0], // Default data when analytics is not available
-                backgroundColor: [
-                    'rgba(75, 192, 192, 0.6)', 
-                    'rgba(54, 162, 235, 0.6)', 
-                    'rgba(255, 99, 132, 0.6)', 
-                    'rgba(255, 206, 86, 0.6)'
-                ],
-                borderColor: [
-                    'rgba(75, 192, 192, 1)', 
-                    'rgba(54, 162, 235, 1)', 
-                    'rgba(255, 99, 132, 1)', 
-                    'rgba(255, 206, 86, 1)'
-                ],
-                borderWidth: 1,
-            },
-        ],
-    };
+    // Prepare the data for the Pie chart
+    const chartData = [
+        ['Task', 'Count'], // Define the column names
+        ['Successful Payments', analytics ? analytics.total_success : 0],
+        ['Failed Payments', analytics ? analytics.total_failure : 0],
+        ['Pending Payments', analytics ? analytics.total_pending : 0],
+    ];
 
+    // Chart options
     const chartOptions = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'bottom',
-            },
-            title: {
-                display: true,
-                text: 'Payments Statistics',
-            },
-        },
+        title: 'Payments Statistics',
+        pieHole: 0.4, // This creates a donut chart; set to 0 for a regular pie chart
+        tooltip: { text: 'label' }, // Show label instead of percentage
     };
 
     const navigateToAddons = () => {
         navigate('/');
     };
+
+    // Calculate the total payments
+    const totalPayments = analytics
+        ? analytics.total_success + analytics.total_failure + analytics.total_pending
+        : 0;
 
     return (
         <div style={{ textAlign: 'center', padding: '20px', position: 'relative' }}>
@@ -117,9 +92,27 @@ const Dashboard = () => {
 
             {/* Render Pie chart */}
             {analytics ? (
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '25%' }}>
-                    <div style={{ width: '40%',  }}>
-                        <Pie data={chartData} options={chartOptions} />
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '25%', position: 'relative' }}>
+                    <div style={{ width: '40%' }}>
+                        <Chart
+                            chartType="PieChart" // Specify the chart type
+                            data={chartData} 
+                            options={chartOptions} 
+                            width={'100%'} // Optional, for full width
+                            height={'400px'} // Optional, set height as needed
+                        />
+                        {/* Total Count Overlay */}
+                        <div style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '45%',
+                            transform: 'translate(-50%, -50%)',
+                            fontSize: '24px',
+                            fontWeight: 'bold',
+                            color: '#000', // Color of the text
+                        }}>
+                            {totalPayments}
+                        </div>
                     </div>
                 </div>
             ) : (
