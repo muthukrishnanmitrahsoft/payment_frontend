@@ -51,7 +51,7 @@ const Dashboard = () => {
 
     // Chart options
     const chartOptions = {
-        title: 'Payments Statistics',
+        title: '',
         pieHole: 0.4, // This creates a donut chart; set to 0 for a regular pie chart
         tooltip: { text: 'label' }, // Show label instead of percentage
     };
@@ -70,7 +70,7 @@ const Dashboard = () => {
             <Toaster /> {/* This will render the toast notifications */}
 
             {/* Dashboard Header */}
-            <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>Dashboard</h1>
+            <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>Payments Statistics</h1>
 
             {/* "Go to Addons" button positioned in the top-right corner */}
             <button 
@@ -93,7 +93,7 @@ const Dashboard = () => {
             {/* Render Pie chart */}
             {analytics ? (
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '25%', position: 'relative' }}>
-                    <div style={{ width: '40%' }}>
+                    <div style={{ width: '40%' ,    border: '2px solid black'}}>
                         <Chart
                             chartType="PieChart" // Specify the chart type
                             data={chartData} 

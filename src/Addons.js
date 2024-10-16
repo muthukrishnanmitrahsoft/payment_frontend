@@ -113,15 +113,11 @@ function Addons() {
     const cardContent = (
         <div style={{ position: 'relative', color: '#000', padding: '20px', height: '100%', marginTop: '2%' }}>
             <div className="box-left">
-                <div className="left-title" id="backBtn" style={{ display: 'inline-block', width: '17rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>
-                            <div className="title">Plan Your Meal</div>
-                        </span>
-                    </div>
+                <div className="left-title" id="backBtn" style={{ display: 'flex', width: '100%', justifyContent: "center" }}>
+                    <div style={{ fontWeight: "bold", fontSize: "2.2em" }}>Plan Your Meal</div>
                 </div>
-                <p style={{ marginTop: '4%' }}>
-                    Wonderla offers a delightful array of mouth-watering food dishes. A whopping 40% of our bookings opt for the All-Day meal Plan, making it the ideal choice for a day out at Wonderla.
+                <p style={{ marginTop: "4%", fontWeight: "bold", fontSize: "1.2em" }}>
+                    Delicious choices await! Pick your favorites, pay securely, and we’ll handle the rest.
                 </p>
             </div>
             <div style={{ textAlign: 'center' }}>
@@ -154,34 +150,36 @@ function Addons() {
 
     return (
         <div>
-            <Toaster position="top-right" reverseOrder={false} />
-            <button
-                onClick={navigateToAddons}
-                style={{
-                    position: 'absolute',
-                    top: '20px',
-                    right: '20px',
-                    padding: '10px 20px',
-                    backgroundColor: '#007bff',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                }}
-            >
-                Go to Dashboard
-            </button>
-            <Select
-                defaultValue={currency}
-                style={{ width: 120, position: 'absolute', top: '20px', left: '20px' }}
-                onChange={handleCurrencyChange}
-            >
-                <Option value="EUR">EUR</Option>
-                <Option value="USD">USD</Option>
-                <Option value="GBP">GBP</Option>
-                {/* Add more options as needed */}
-            </Select>
-            <div style={{ display: "flex", justifyContent: "center", gap: "3%", flexWrap: 'wrap', marginTop: "2%" }}>
+            <div>
+                <Toaster position="top-right" reverseOrder={false} />
+                <button
+                    onClick={navigateToAddons}
+                    style={{
+                        position: 'absolute',
+                        top: '20px',
+                        right: '20px',
+                        padding: '10px 20px',
+                        backgroundColor: '#007bff',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    Go to Dashboard
+                </button>
+                <Select
+                    defaultValue={currency}
+                    style={{ width: 120, position: 'absolute', top: '20px', left: '20px' }}
+                    onChange={handleCurrencyChange}
+                >
+                    <Option value="EUR">EUR</Option>
+                    <Option value="USD">USD</Option>
+                    <Option value="GBP">GBP</Option>
+                    {/* Add more options as needed */}
+                </Select>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", gap: "3%", flexWrap: 'wrap', marginTop: "7%" }}>
                 <Card
                     hoverable
                     style={{
@@ -204,7 +202,10 @@ function Addons() {
                         backgroundColor: 'white',
                     }}
                 >
-                    <div style={{ height: "440px", overflowY: "scroll" }}>
+                    <div style={{
+                        height: "440px", overflowY: "scroll", scrollbarWidth: "none",
+                        msOverflowStyle: "none"
+                    }}>
                         <List
                             itemLayout="vertical"
                             dataSource={foodItems}
@@ -216,12 +217,12 @@ function Addons() {
                                                 <Carousel autoplay dots={false}>
                                                     {item.images.map((img, index) => (
                                                         <div key={index}>
-                                                            <img src={img} style={{ width: "100%", height: "auto" }} alt="Food item" />
+                                                            <img src={img} style={{ width: "95%", height: "auto" }} alt="Food item" />
                                                         </div>
                                                     ))}
                                                 </Carousel>
                                             }
-                                            title={<h2 className='meal-info'>{item.name} @ {currencySymbols[currency]}{item.price}</h2>} 
+                                            title={<h2 className='meal-info'>{item.name} @ {currencySymbols[currency]}{item.price}</h2>}
                                             description={
                                                 <div style={{ display: 'flex', alignItems: 'center', border: '2px solid #2542A8', borderRadius: '30px', backgroundColor: '#2542A8', padding: '5px 10px', width: "39%" }}>
                                                     <Button
@@ -229,7 +230,7 @@ function Addons() {
                                                         shape="circle"
                                                         onClick={() => handleDecrement(item.id, item.price)}
                                                         style={{ backgroundColor: 'white', borderColor: 'white', color: 'blue' }}
-                                                        disabled={quantities[item.id] === 0}
+                                                        disabled={!quantities[item.id] || quantities[item.id] === 0}  // Disable when quantity is undefined, null, or 0
                                                     >
                                                         -
                                                     </Button>
