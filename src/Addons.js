@@ -1,60 +1,61 @@
-import { useEffect, useContext, useRef } from 'react'; // Add useRef
+import { useEffect, useContext, useRef, useState } from 'react'; // Added useState
 import { useNavigate } from 'react-router-dom';
-import { Card, Button, InputNumber, Carousel } from 'antd';
-import { Steps, List, Avatar } from 'antd';
+import { Card, Button, InputNumber, Carousel, Select } from 'antd'; // Import Select
+import { Steps, List } from 'antd';
 import chicken from './assist/Lunch_700+x+400+px.jpg';
 import './Addons.css';
-import meals_img from "./assist/Meal_Image_k.svg"
+import meals_img from "./assist/Meal_Image_k.svg";
 import { BookingContext } from './BookingContext';
-import toast, { Toaster } from 'react-hot-toast'; // Import toast
+import toast, { Toaster } from 'react-hot-toast';
+
+const { Option } = Select; // Destructure Option from Select
 
 function Addons() {
     const { quantities, setQuantities, totalAddCost, setTotalAddonCost } = useContext(BookingContext);
-    const hasShownToast = useRef(false); // Create a ref to track toast
+    const hasShownToast = useRef(false);
     const navigate = useNavigate();
 
-
+    const [currency, setCurrency] = useState("EUR"); // State for currency
+    const currencySymbols = {
+        USD: "$",
+        EUR: "€",
+        GBP: "£",
+        // Add more currencies as needed
+    };
 
     useEffect(() => {
         const searchParams = new URLSearchParams(window.location.search);
         const status = searchParams.get('status');
 
-        if (status === 'success' && !hasShownToast.current) { // Check if toast has been shown
+        if (status === 'success' && !hasShownToast.current) {
             toast.success('Payment successful!');
-            hasShownToast.current = true; // Mark toast as shown
+            hasShownToast.current = true;
         } else if (status === 'failed' && !hasShownToast.current) {
             toast.error('Payment failed. Please try again.');
-            hasShownToast.current = true; // Mark toast as shown
+            hasShownToast.current = true;
         }
         searchParams.delete('status');
         const newUrl = `${window.location.pathname}?${searchParams.toString()}`;
         window.history.replaceState(null, '', newUrl);
     }, []);
 
-
     const handleItemClick = async () => {
         const BASE_URL = process.env.REACT_APP_CREATEPAYMENT;
-        // const paymentData = {
-        //     amount: totalAddCost,
-        //     currency: "USD",
-        //     description: "Payment for order #12345",
-        //     expiration: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        // };
 
         const selectedItems = foodItems
-        .filter(item => quantities[item.id] > 0)  // Filter selected items with count > 0
-        .map(item => ({
-            name: item.name,
-            price: item.price,
-            quantity: quantities[item.id],
-        }));
+            .filter(item => quantities[item.id] > 0)
+            .map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: quantities[item.id],
+            }));
 
         const paymentData = {
             amount: totalAddCost,
-            currency: "USD",
+            currency: currency, // Send selected currency
             description: "Payment for selected items",
             expiration: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-            items: selectedItems  // Send selected items
+            items: selectedItems,
         };
 
         try {
@@ -70,7 +71,6 @@ function Addons() {
 
             const data = await response.json();
 
-            // Copy the payment URL to clipboard
             navigator.clipboard.writeText(data.payment_url)
                 .then(() => {
                     toast.success('Payment link copied to clipboard!');
@@ -86,7 +86,6 @@ function Addons() {
         }
     };
 
-    // Function to handle increment
     const handleIncrement = (itemId, itemPrice) => {
         setQuantities(prevQuantities => ({
             ...prevQuantities,
@@ -95,17 +94,20 @@ function Addons() {
         setTotalAddonCost(totalAddCost + itemPrice);
     };
 
-    // Function to handle decrement
     const handleDecrement = (itemId, itemPrice) => {
         setQuantities(prevQuantities => ({
             ...prevQuantities,
-            [itemId]: Math.max(0, (prevQuantities[itemId] || 0) - 1), // Prevent negative quantities
+            [itemId]: Math.max(0, (prevQuantities[itemId] || 0) - 1),
         }));
         setTotalAddonCost(totalAddCost - itemPrice);
     };
 
     const navigateToAddons = () => {
         navigate('/dashboard');
+    };
+
+    const handleCurrencyChange = (value) => {
+        setCurrency(value); // Update selected currency
     };
 
     const cardContent = (
@@ -147,16 +149,14 @@ function Addons() {
             price: 519,
             images: [chicken, chicken, chicken]
         },
-
-
         // Add more food items as needed
     ];
 
     return (
         <div>
             <Toaster position="top-right" reverseOrder={false} />
-            <button 
-                onClick={navigateToAddons} 
+            <button
+                onClick={navigateToAddons}
                 style={{
                     position: 'absolute',
                     top: '20px',
@@ -171,6 +171,16 @@ function Addons() {
             >
                 Go to Addons
             </button>
+            <Select
+                defaultValue={currency}
+                style={{ width: 120, position: 'absolute', top: '20px', left: '20px' }}
+                onChange={handleCurrencyChange}
+            >
+                <Option value="EUR">EUR</Option>
+                <Option value="USD">USD</Option>
+                <Option value="GBP">GBP</Option>
+                {/* Add more options as needed */}
+            </Select>
             <div style={{ display: "flex", justifyContent: "center", gap: "3%", flexWrap: 'wrap', marginTop: "2%" }}>
                 <Card
                     hoverable
@@ -211,7 +221,7 @@ function Addons() {
                                                     ))}
                                                 </Carousel>
                                             }
-                                            title={<h2 className='meal-info'>{item.name} @ $.{item.price}</h2>}
+                                            title={<h2 className='meal-info'>{item.name} @ {currencySymbols[currency]}{item.price}</h2>} 
                                             description={
                                                 <div style={{ display: 'flex', alignItems: 'center', border: '2px solid #2542A8', borderRadius: '30px', backgroundColor: '#2542A8', padding: '5px 10px', width: "39%" }}>
                                                     <Button
@@ -249,8 +259,8 @@ function Addons() {
 
                     <div style={{ position: "sticky", bottom: "1px", backgroundColor: "white", height: "100px", display: "flex", alignItems: "center", justifyContent: "space-around" }}>
                         <div className='bottom-left-part' style={{ width: "40%", display: "flex", flexDirection: "column", justifyContent: "center", marginLeft: "2%" }}>
-                            <h2 style={{ fontSize: "18.711px", fontWeight: "700",  margin:"0"}}>$ {totalAddCost}</h2>
-                            <p style={{margin:"0"}}>Excl. all taxes</p>
+                            <h2 style={{ fontSize: "18.711px", fontWeight: "700", margin: "0" }}>{currencySymbols[currency]} {totalAddCost}</h2> {/* Use currency symbol */}
+                            <p style={{ margin: "0" }}>Excl. all taxes</p>
                         </div>
                         <div style={{ width: "60%", display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                             <Button
