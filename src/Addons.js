@@ -169,7 +169,7 @@ function Addons() {
                     cursor: 'pointer',
                 }}
             >
-                Go to Addons
+                Go to Dashboard
             </button>
             <Select
                 defaultValue={currency}
